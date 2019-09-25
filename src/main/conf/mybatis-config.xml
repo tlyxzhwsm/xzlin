@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<!-- mybatis调优的配置 -->
+	<settings>
+		<!-- 对全局设置懒加载 -->
+		<setting name="lazyLoadingEnabled" value="true" />
+		<!-- 把积极加载改为消极加载，意思只有调用对应属性才进行二次加载 -->
+		<setting name="aggressiveLazyLoading" value="false" />
+		<!-- 启用二级缓存 -->
+		<setting name="cacheEnabled" value="true" />
+		<!-- 日志输出到控制台 -->
+		<setting name="logImpl" value="LOG4J2" />
+	</settings>
+
+	<typeAliases>
+		<!-- 自动扫描包下的类，把类名作为别名，前提：类名不能重复 -->
+		<!--<package name="com.xzlin" />-->
+		<typeAlias type="com.xzlin.userMag.entity.User" alias="user"/>
+		<typeAlias type="com.xzlin.news.entity.News" alias="news"/>
+	</typeAliases>
+</configuration>

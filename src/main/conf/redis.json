@@ -1,0 +1,12 @@
+{
+    "redis": [{
+    	"name":"simple",
+    	"host":"127.0.0.1",
+        "port": "6379",
+        "maxTotal":2000,
+        "maxIdle":50,
+		"minIdle":5,
+        "auth":"root",
+        "shard":"on"
+    }]
+}

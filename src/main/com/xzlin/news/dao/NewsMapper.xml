@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xzlin.news.dao.INewsDao">
+    <select id="showNews" resultType="news">
+    		select * from news group by id desc
+    	</select>
+    <insert id="addItem" parameterType="news">
+	insert into news(label,url,degree,isNice,isShow,ctime,discribe,title,imgUrl)
+	values(#{label},#{url},#{degree},#{isNice},#{isShow},#{ctime},#{discribe},#{title},#{imgUrl})
+ </insert>
+</mapper>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        ">
+
+	<!-- 把Mybatis需要的对象，全部配进来 <context:property-placeholder location=""/> -->
+	<context:property-placeholder location="classpath:conf/jdbc.properties"/>
+	
+	<!-- Datasource数据源对象,Druid数据库连接池 -->
+	<bean id="dataSource"
+		class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+		destroy-method="close">
+		<property name="driverClassName"
+			value="${jdbc.driver}"></property>
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		<property name="validationQuery" value="true"></property>
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${jdbc.initialSize}" />
+		<property name="minIdle" value="1" />
+		<property name="maxActive" value="50" />
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="60000" />
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+	</bean>
+
+	<!-- SqlSessionFactory对象的创建 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation"
+			value="classpath:conf/mybatis-config.xml"></property>
+		<property name="mapperLocations">
+			<value>classpath:com/xzlin/*/dao/*.xml</value>
+		</property>
+		<!-- 配置mybatis分页插件 -->
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageInterceptor">
+					<property name="properties">
+						<!-- 分页参数合理化 -->
+						<value>reasonable=true</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+		
+	</bean>
+
+	<!-- 扫描Dao接口，自动创建代理对象，并交给spring管理 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 扫描指定包路径下的接口，创建代理对象 -->
+		<property name="basePackage" value="com.xzlin.*.dao"></property>
+		<!-- 不要给sqlSessionFactory设置引用的bean，会使context:property-placeholder标签引入的properties文件失效 -->
+		<property name="sqlSessionFactoryBeanName"
+			value="sqlSessionFactory"></property>
+	</bean>
+
+	<!-- 事务管理对象,在spring-jdbc.jar下 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- spring中事务管理两种应用： 编程式事务管理.TransactionTemplate;声明式事务管理:注解@Transactional、配置:如下 -->
+	<!-- 1.声明式事务管理 ：在service层方法上加入@Transactional-->
+	<tx:annotation-driven proxy-target-class="true"
+		transaction-manager="transactionManager" />
+	
+	<!-- 2.配置事务 -->
+	<!-- 配置事务生效规则，比如：对addXXXX,updateXXXX,delXXXX,insertXXXX,updXXXX -->
+	<tx:advice id="txadvice"
+		transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="insert*" propagation="REQUIRED"/>
+			<tx:method name="del*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="remove*" propagation="REQUIRED"/>
+			<tx:method name="upd*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+			<tx:method name="query*" propagation="SUPPORTS" read-only="true"/>
+			<tx:method name="*list" propagation="SUPPORTS" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 配置切入点，把事务织入到指定切入点 -->
+	<aop:config>
+		<!-- <aop:advisor advice-ref="txadvice" pointcut="execution(* com.javasm.*.service.*.*(..))"/> -->
+		<aop:pointcut expression="execution(* com.xzlin.*.service.*.*(..))" id="servicepointcut"/>
+		<aop:advisor advice-ref="txadvice" pointcut-ref="servicepointcut"/>
+	</aop:config>
+
+</beans>
