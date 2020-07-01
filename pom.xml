@@ -20,7 +20,7 @@
     <spring-version>5.0.8.RELEASE</spring-version>
     <jackson-version>2.9.5</jackson-version>
     <aspect-version>1.7.4</aspect-version>
-    <log4j-version>2.11.0</log4j-version>
+    <log4j-version>2.13.3</log4j-version>
     <quartz-version>2.2.1</quartz-version>
   </properties>
 
