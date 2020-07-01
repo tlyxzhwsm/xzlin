@@ -21,7 +21,7 @@
     <jackson-version>2.9.5</jackson-version>
     <aspect-version>1.7.4</aspect-version>
     <log4j-version>2.11.0</log4j-version>
-    <quartz-version>2.2.1</quartz-version>
+    <quartz-version>2.3.2</quartz-version>
   </properties>
 
   <dependencies>
